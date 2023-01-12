@@ -5,7 +5,7 @@ const { Student, Course } = require('../models');
 // TODO: Create an aggregate function to get the number of students overall
 const headCount = async () =>
   Student.aggregate()
-    .count("numberOfStudents")
+    .count("studentCount")
     .then((numberOfStudents) => numberOfStudents);
 
 // Execute the aggregate method on the Student model and calculate the overall grade by using the $avg operator
@@ -17,16 +17,13 @@ const grade = async (studentId) =>
     $match: {_id: ObjectId(studentId), },
     },
     {
-      // Your code here
-    $group: { _id: ObjectId(studentId), average: {$avg: '$GPA'}},
-    },
-    {
+      // unwinds (deconstructs) the assignments array
       $unwind: '$assignments',
     },
     // TODO: Group information for the student with the given ObjectId alongside an overall grade calculated using the $avg operator
     {
       // Your code here
-    $group: { _id: ObjectId(studentId), average: {$avg: '$GPA'}},
+    $group: { _id: ObjectId(studentId), overallGrade: {$avg: '$assignments.score'}},
     },
   ]);
 
@@ -50,7 +47,7 @@ module.exports = {
   getSingleStudent(req, res) {
     Student.findOne({ _id: req.params.studentId })
       .select('-__v')
-      .lean()
+      // .lean()
       .then(async (student) =>
         !student
           ? res.status(404).json({ message: 'No student with that ID' })

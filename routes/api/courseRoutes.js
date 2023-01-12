@@ -8,7 +8,10 @@ const {
 } = require('../../controllers/courseController.js');
 
 // /api/courses
-router.route('/').get(getCourses).post(createCourse);
+router
+.route('/')
+.get(getCourses)
+.post(createCourse);
 
 // /api/courses/:courseId
 router
